@@ -2,7 +2,7 @@
 -> Yes
 
 (2) What is the meaning of $HOME in your VM environment?
--> $HOME is an environment variable that contains the location of my Home directory of the VM enviroment
+-> $HOME is an environment variable that contains the location of current user's home directory of the VM environment
 
 (3) What is the meaning of SUDO in Unix/Linux environment?
 -> sudo allows a permitted user to execute a command as the superuser or another user.
