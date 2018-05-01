@@ -6,6 +6,7 @@
 
 (3) What is the meaning of SUDO in Unix/Linux environment?
 -> sudo allows a permitted user to execute a command as the superuser or another user.
+
 (4) Write and briefly explain any 5 Unix/Linux commands. 
 -> 
 cd: change directory
