@@ -1,0 +1,64 @@
+18/05/04 07:43:36 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+18/05/04 07:43:38 INFO Configuration.deprecation: session.id is deprecated. Instead, use dfs.metrics.session-id
+18/05/04 07:43:38 INFO jvm.JvmMetrics: Initializing JVM Metrics with processName=JobTracker, sessionId=
+18/05/04 07:43:38 WARN mapred.JobClient: No job jar file set.  User classes may not be found. See JobConf(Class) or JobConf#setJar(String).
+18/05/04 07:43:38 INFO input.FileInputFormat: Total input paths to process : 1
+18/05/04 07:43:39 INFO mapred.JobClient: Running job: job_local1101437769_0001
+18/05/04 07:43:39 INFO mapred.LocalJobRunner: OutputCommitter set in config null
+18/05/04 07:43:39 INFO mapred.LocalJobRunner: OutputCommitter is org.apache.hadoop.mapreduce.lib.output.FileOutputCommitter
+18/05/04 07:43:39 INFO mapred.LocalJobRunner: Waiting for map tasks
+18/05/04 07:43:39 INFO mapred.LocalJobRunner: Starting task: attempt_local1101437769_0001_m_000000_0
+18/05/04 07:43:39 WARN mapreduce.Counters: Group org.apache.hadoop.mapred.Task$Counter is deprecated. Use org.apache.hadoop.mapreduce.TaskCounter instead
+18/05/04 07:43:39 INFO util.ProcessTree: setsid exited with exit code 0
+18/05/04 07:43:39 INFO mapred.Task:  Using ResourceCalculatorPlugin : org.apache.hadoop.util.LinuxResourceCalculatorPlugin@4e005207
+18/05/04 07:43:39 INFO mapred.MapTask: Processing split: file:/home/cloudera/Desktop/AverageTemperature/input/NCDC-Weather.txt:0+1791045
+18/05/04 07:43:39 INFO mapred.MapTask: Map output collector class = org.apache.hadoop.mapred.MapTask$MapOutputBuffer
+18/05/04 07:43:39 INFO mapred.MapTask: io.sort.mb = 100
+18/05/04 07:43:39 INFO mapred.MapTask: data buffer = 79691776/99614720
+18/05/04 07:43:39 INFO mapred.MapTask: record buffer = 262144/327680
+18/05/04 07:43:40 INFO mapred.JobClient:  map 0% reduce 0%
+18/05/04 07:43:40 INFO mapred.LocalJobRunner: 
+18/05/04 07:43:40 INFO mapred.MapTask: Starting flush of map output
+18/05/04 07:43:40 INFO mapred.MapTask: Finished spill 0
+18/05/04 07:43:40 INFO mapred.Task: Task:attempt_local1101437769_0001_m_000000_0 is done. And is in the process of commiting
+18/05/04 07:43:40 INFO mapred.LocalJobRunner: 
+18/05/04 07:43:40 INFO mapred.Task: Task 'attempt_local1101437769_0001_m_000000_0' done.
+18/05/04 07:43:40 INFO mapred.LocalJobRunner: Finishing task: attempt_local1101437769_0001_m_000000_0
+18/05/04 07:43:40 INFO mapred.LocalJobRunner: Map task executor complete.
+18/05/04 07:43:40 WARN mapreduce.Counters: Group org.apache.hadoop.mapred.Task$Counter is deprecated. Use org.apache.hadoop.mapreduce.TaskCounter instead
+18/05/04 07:43:40 INFO mapred.Task:  Using ResourceCalculatorPlugin : org.apache.hadoop.util.LinuxResourceCalculatorPlugin@17649784
+18/05/04 07:43:40 INFO mapred.LocalJobRunner: 
+18/05/04 07:43:40 INFO mapred.Merger: Merging 1 sorted segments
+18/05/04 07:43:40 INFO mapred.Merger: Down to the last merge-pass, with 1 segments left of total size: 72 bytes
+18/05/04 07:43:40 INFO mapred.LocalJobRunner: 
+18/05/04 07:43:40 INFO mapred.Task: Task:attempt_local1101437769_0001_r_000000_0 is done. And is in the process of commiting
+18/05/04 07:43:40 INFO mapred.LocalJobRunner: 
+18/05/04 07:43:40 INFO mapred.Task: Task attempt_local1101437769_0001_r_000000_0 is allowed to commit now
+18/05/04 07:43:40 INFO output.FileOutputCommitter: Saved output of task 'attempt_local1101437769_0001_r_000000_0' to ouput
+18/05/04 07:43:40 INFO mapred.LocalJobRunner: reduce > reduce
+18/05/04 07:43:40 INFO mapred.Task: Task 'attempt_local1101437769_0001_r_000000_0' done.
+18/05/04 07:43:41 INFO mapred.JobClient:  map 100% reduce 100%
+18/05/04 07:43:41 INFO mapred.JobClient: Job complete: job_local1101437769_0001
+18/05/04 07:43:41 INFO mapred.JobClient: Counters: 20
+18/05/04 07:43:41 INFO mapred.JobClient:   File System Counters
+18/05/04 07:43:41 INFO mapred.JobClient:     FILE: Number of bytes read=3582548
+18/05/04 07:43:41 INFO mapred.JobClient:     FILE: Number of bytes written=332149
+18/05/04 07:43:41 INFO mapred.JobClient:     FILE: Number of read operations=0
+18/05/04 07:43:41 INFO mapred.JobClient:     FILE: Number of large read operations=0
+18/05/04 07:43:41 INFO mapred.JobClient:     FILE: Number of write operations=0
+18/05/04 07:43:41 INFO mapred.JobClient:   Map-Reduce Framework
+18/05/04 07:43:41 INFO mapred.JobClient:     Map input records=13137
+18/05/04 07:43:41 INFO mapred.JobClient:     Map output records=5
+18/05/04 07:43:41 INFO mapred.JobClient:     Map output bytes=60
+18/05/04 07:43:41 INFO mapred.JobClient:     Input split bytes=134
+18/05/04 07:43:41 INFO mapred.JobClient:     Combine input records=0
+18/05/04 07:43:41 INFO mapred.JobClient:     Combine output records=0
+18/05/04 07:43:41 INFO mapred.JobClient:     Reduce input groups=5
+18/05/04 07:43:41 INFO mapred.JobClient:     Reduce shuffle bytes=0
+18/05/04 07:43:41 INFO mapred.JobClient:     Reduce input records=5
+18/05/04 07:43:41 INFO mapred.JobClient:     Reduce output records=5
+18/05/04 07:43:41 INFO mapred.JobClient:     Spilled Records=10
+18/05/04 07:43:41 INFO mapred.JobClient:     CPU time spent (ms)=0
+18/05/04 07:43:41 INFO mapred.JobClient:     Physical memory (bytes) snapshot=0
+18/05/04 07:43:41 INFO mapred.JobClient:     Virtual memory (bytes) snapshot=0
+18/05/04 07:43:41 INFO mapred.JobClient:     Total committed heap usage (bytes)=320741376
