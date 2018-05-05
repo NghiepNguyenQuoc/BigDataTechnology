@@ -1,0 +1,5 @@
+[cloudera@quickstart ~]$ hadoop fs -rm -r /user/cloudera/input
+[cloudera@quickstart ~]$ hadoop fs -rm -r /user/cloudera/output
+[cloudera@quickstart ~]$ hadoop fs -mkdir /user/cloudera/input
+[cloudera@quickstart ~]$ hadoop fs -put /home/cloudera/Desktop/NCDC-Weather_small.txt /user/cloudera/input
+[cloudera@quickstart ~]$ hadoop jar /home/cloudera/Desktop/averageTemp.jar AverageTemp /user/cloudera/input/NCDC-Weather_small.txt /user/cloudera/ouput
