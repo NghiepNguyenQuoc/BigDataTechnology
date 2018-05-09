@@ -7,12 +7,10 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.mapred.AvroKey;
 import org.apache.avro.mapred.AvroValue;
 import org.apache.avro.mapreduce.AvroJob;
-import org.apache.avro.mapreduce.AvroKeyOutputFormat;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -26,13 +24,15 @@ import com.google.common.collect.Iterables;
 
 public class AvroGenericStationTempYear extends Configured implements Tool {
 
-	private static Schema SCHEMA;
+	private static Schema SCHEMA_KEY;
+	private static Schema SCHEMA_VALUE;
 
 	public static class AvroMapper
 			extends
 			Mapper<LongWritable, Text, AvroKey<GenericRecord>, AvroValue<GenericRecord>> {
 		private NcdcLineReaderUtils utils = new NcdcLineReaderUtils();
-		private GenericRecord record = new GenericData.Record(SCHEMA);
+		private GenericRecord recordKey = new GenericData.Record(SCHEMA_KEY);
+		private GenericRecord recordValue = new GenericData.Record(SCHEMA_VALUE);
 
 		@Override
 		protected void map(LongWritable key, Text value, Context context)
@@ -40,18 +40,18 @@ public class AvroGenericStationTempYear extends Configured implements Tool {
 			utils.parse(value.toString());
 
 			if (utils.isValidTemperature()) {
-				record.put("year", utils.getYearInt());
-				record.put("temperature", utils.getAirTemperature());
-				record.put("stationId", utils.getStationId());
-				context.write(new AvroKey<GenericRecord>(record),
-						new AvroValue<GenericRecord>(record));
+				recordKey.put("year", utils.getYearInt());
+				recordValue.put("temperature", utils.getAirTemperature());
+				recordValue.put("stationId", utils.getStationId());
+				context.write(new AvroKey<GenericRecord>(recordKey),
+						new AvroValue<GenericRecord>(recordValue));
 			}
 		}
 	}
 
 	public static class AvroReducer
 			extends
-			Reducer<AvroKey<GenericRecord>, AvroValue<GenericRecord>, AvroKey<GenericRecord>, NullWritable> {
+			Reducer<AvroKey<GenericRecord>, AvroValue<GenericRecord>, AvroKey<GenericRecord>, AvroValue<GenericRecord>> {
 		@Override
 		protected void reduce(AvroKey<GenericRecord> key,
 				Iterable<AvroValue<GenericRecord>> values, Context context)
@@ -67,15 +67,16 @@ public class AvroGenericStationTempYear extends Configured implements Tool {
 					stationID = (String) avroValue.datum().get("stationId");
 				}
 			}
-			key.datum().put("temperature", maxTemp);
-			key.datum().put("stationId", stationID);
-			context.write(key, NullWritable.get());
+			GenericRecord genericRecord = new GenericData.Record(SCHEMA_VALUE);
+			genericRecord.put("temperature", maxTemp);
+			genericRecord.put("stationId", stationID);
+			context.write(key, new AvroValue<GenericRecord>(genericRecord));
 		}
 	}
 
 	@Override
 	public int run(String[] args) throws Exception {
-		if (args.length != 3) {
+		if (args.length != 4) {
 			System.err
 					.printf("Usage: %s [generic options] <input> <output> <schema-file>\n",
 							getClass().getSimpleName());
@@ -89,30 +90,35 @@ public class AvroGenericStationTempYear extends Configured implements Tool {
 
 		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
-		String schemaFile = args[2];
+		String schemaFile1 = args[2];
+		String schemaFile2 = args[3];
 
-		SCHEMA = new Schema.Parser().parse(new File(schemaFile));
+		SCHEMA_KEY = new Schema.Parser().parse(new File(schemaFile1));
+		SCHEMA_VALUE = new Schema.Parser().parse(new File(schemaFile2));
 
 		job.setMapperClass(AvroMapper.class);
 		job.setReducerClass(AvroReducer.class);
 
 		job.setMapOutputKeyClass(AvroKey.class);
 		job.setMapOutputValueClass(AvroValue.class);
-		
+
 		job.setOutputKeyClass(AvroKey.class);
-		job.setOutputValueClass(NullWritable.class);
-		
+		job.setOutputValueClass(AvroValue.class);
+
 		FileSystem fileSystem = FileSystem.get(getConf());
 		Path path = new Path(args[1]);
 		if (fileSystem.exists(path)) {
 			fileSystem.delete(path, true);
 		}
 		// Define the map output key schema
-		AvroJob.setMapOutputKeySchema(job, SCHEMA);
-		AvroJob.setMapOutputValueSchema(job, SCHEMA);
+		AvroJob.setMapOutputKeySchema(job, SCHEMA_KEY);
+		AvroJob.setMapOutputValueSchema(job, SCHEMA_VALUE);
 
-		AvroJob.setOutputKeySchema(job, SCHEMA);
-		job.setOutputFormatClass(AvroKeyOutputFormat.class);
+		AvroJob.setOutputKeySchema(job, SCHEMA_KEY);
+		AvroJob.setOutputValueSchema(job, SCHEMA_VALUE);
+
+		// job.setOutputFormatClass(AvroKeyValueOutputFormat.class);
+
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
 
