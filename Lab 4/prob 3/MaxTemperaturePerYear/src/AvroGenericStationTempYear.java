@@ -117,7 +117,7 @@ public class AvroGenericStationTempYear extends Configured implements Tool {
 		AvroJob.setOutputKeySchema(job, SCHEMA_KEY);
 		AvroJob.setOutputValueSchema(job, SCHEMA_VALUE);
 
-		// job.setOutputFormatClass(AvroKeyValueOutputFormat.class);
+		job.setOutputFormatClass(AvroKeyValueOutputFormat.class);
 
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
