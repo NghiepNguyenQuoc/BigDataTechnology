@@ -1,0 +1,10 @@
+{
+	"type": "record",
+	"name": "WeatherRecord2",
+	"doc": "A weather reading.",
+	"fields": 	[
+				{"name":"stationId","type":"string"},
+				{"name":"temperature","type":"double"}		
+			]
+						
+}
