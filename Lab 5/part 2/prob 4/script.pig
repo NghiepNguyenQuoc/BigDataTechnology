@@ -11,7 +11,7 @@ filterMOVIES = FILTER flattenMOVIES BY $2 =='Adventure';
 
 
 joinMR= JOIN filterMOVIES BY $0, filterR BY $1;
-result = FOREACH joinMR GENERATE $0, $2, $5, $1;
+result = FOREACH joinMR GENERATE $0 as MovieId, $2 as Genre, $5 as Rating, $1 as Title;
 distinctResult = DISTINCT result;
 orderMR = ORDER distinctResult by movieId;
 top20 = LIMIT orderMR 20;
