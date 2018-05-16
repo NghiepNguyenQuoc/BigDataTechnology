@@ -1,0 +1,2 @@
+spark-submit --class "cs523.AnalysicLogFile.SparkAnalysicLogFile" --master local '/home/cloudera/Desktop/AnalysicLogFile/target/AnalysicLogFile-0.0.1-SNAPSHOT.jar' /user/cloudera/input/access_log /user/cloudera/ouput/AnalysicLogFile
+
