@@ -49,7 +49,7 @@ Confirm if it was deleted or not by using this command kafka-topics.sh --list --
 #Hive on Hbase
 # done with consumer : kafkatest.java
 
-create external table tradedata_hbase (rowid String,price float,quantity float,ordertype String) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' with serdeproperties ("hbase.columns.mapping"=":key,data_cf:Price,data_cf:Quantity,data_cf:Ordertype") tblproperties("hbase.table.name"="TradeData");
+create external table tradedata_hbase (rowid String,price float,quantity float,ordertype String,timestmp String,total String,filltype String) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' with serdeproperties ("hbase.columns.mapping"=":key,data_cf:Price,data_cf:Quantity,data_cf:Ordertype,data_cf:Timestamp,data_cf:Total,data_cf:Filltype") tblproperties("hbase.table.name"="TradeData");
 
 # install Zeppelin
 # download Zeppelin at http://www.apache.org/dyn/closer.cgi/zeppelin/zeppelin-0.7.3/zeppelin-0.7.3-bin-all.tgz
