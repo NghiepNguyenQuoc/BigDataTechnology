@@ -1,0 +1,72 @@
+Kafka <> Spark <> HBase <> Zepperlin
+
+#Spark installation
+http://download.nextag.com/apache/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz
+
+tar -xvzf spark-2.3.0-bin-hadoop2.7.tgz
+mv spark-2.3.0-bin-hadoop2.7 /usr/local/spark
+
+
+#Kafka installation
+http://mirrors.sorengard.com/apache/kafka/1.0.1/kafka_2.12-1.0.1.tgz
+tar -xvf kafka_2.12-1.0.1.tgz
+
+edit .bash_profile to add 2 line below
+
+export KAFKA_HOME=<location of kafka>
+export PATH=$PATH:$KAFKA_HOME/bin
+
+#Check zookeeper.properties, reconfigure if need --> --clientPort=2181
+#Check zookeeper.properties, dataDir=/tmp/zookeeper
+#start zookeeper first before start kafka
+./bin/zookeeper-server-start.sh config/zookeeper.properties
+
+#start kafka, check broker.id=0 , port etc...
+./bin/kafka-server-start.sh config/server.properties
+
+#create toptic
+./bin/kafka-topics.sh --zookeeper localhost:2181 --create --topic wordcountopic --partitions 1 --replication-factor 1
+
+#list topic on kafka
+./bin/kafka-topics.sh --list --zookeeper --localhost:2181
+
+#start consummer from beginning
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic wordcountopic --from-beginning
+
+
+#delete kafka topic
+Stop Kafka server
+Delete the topic directory with rm -rf command
+Connect to Zookeeper instance: zookeeper-shell.sh host:port
+ls /brokers/topics
+Remove the topic folder from ZooKeeper using rmr /brokers/topics/yourtopic
+Restart Kafka server
+Confirm if it was deleted or not by using this command kafka-topics.sh --list --zookeeper host:port
+
+
+# Data visualization
+
+#Hive on Hbase
+# done with consumer : kafkatest.java
+
+create external table tradedata_hbase (rowid String,price float,quantity float,ordertype String) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' with serdeproperties ("hbase.columns.mapping"=":key,data_cf:Price,data_cf:Quantity,data_cf:Ordertype") tblproperties("hbase.table.name"="TradeData");
+
+# install Zeppelin
+# download Zeppelin at http://www.apache.org/dyn/closer.cgi/zeppelin/zeppelin-0.7.3/zeppelin-0.7.3-bin-all.tgz
+# unzip , change dir to bin
+
+./zeppelin.daemon.sh start
+
+./zeppelin.daemon.sh stop
+
+# edit permission for hive on zeppelin
+
+sudo chmod -R 777 /tmp/hive/
+sudo -u hdfs hadoop fs -chmod -R 777 /tmp/hive/
+
+
+#Start streaming job
+run Consumer: listen on wordcountopic of Spark (kafkatest.jar)
+run Producer : pull Buy-Sell WS of Bittrex every 30s (simplewordcount.java -  eclipse)
+run zeppelin chart on localhost:8080, query with jdbc:hive
+
