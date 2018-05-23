@@ -1,0 +1,18 @@
+%spark.sql
+
+SELECT ROUND(price, 5) AS price, SUM(quantity) AS buy_volume
+FROM tradedata_hbase 
+WHERE ordertype LIKE "BUY"
+GROUP BY price
+ORDER BY price DESC
+
+
+
+%spark.sql
+
+SELECT ROUND((-1)*price, 5) AS price, SUM(quantity) AS buy_volume
+FROM tradedata_hbase 
+WHERE ordertype LIKE "SELL"
+GROUP BY price
+ORDER BY price DESC
+
