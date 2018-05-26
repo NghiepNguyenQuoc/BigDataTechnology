@@ -1,0 +1,22 @@
+create external table employees(name string, title string, dept string, f_p string, s_h string, hours int, a_salary string, hour_rate string)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+tblproperties("skip.header.line.count"="1");
+
+load data local inpath 'Current_Employee_Names__Salaries__and_Position_Titles.csv' overwrite into table employees;
+
+
+
+
+select dept, max(salary) as salary
+from 
+	( 
+	select dept, max(cast(substr(a_salary,2) as float)) as salary
+	from employees
+	group by dept
+	union all
+	select dept, max(cast(substr(hour_rate,2) as float)*hours*52) as salary
+	from employees
+	group by dept
+	) max
+group by dept
+order by salary desc;

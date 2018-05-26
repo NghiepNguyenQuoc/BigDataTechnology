@@ -1,0 +1,18 @@
+REGISTER /usr/lib/pig/piggybank.jar;
+A = LOAD '/home/cloudera/lab5/movies.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'YES_MULTILINE', 'UNIX', 'SKIP_INPUT_HEADER') AS (movieId:int, title:chararray, genres:chararray);
+B = LOAD '/home/cloudera/lab5/rating.txt' AS (userId:int,movieId:int,rating:int,time:chararray);
+C = FOREACH A GENERATE movieId, title, FLATTEN(TOKENIZE(genres,'|')) as genres;
+D = FILTER C by genres == 'Adventure';
+E = FILTER B by rating == 5;
+F = JOIN D by movieId, E by movieId;
+G = FOREACH F GENERATE $0 as movieId, $2 as genres, $5 as rating, $1 as title;
+H = DISTINCT G;
+I = ORDER H by movieId;
+J = LIMIT I 20;
+K = LOAD '/home/cloudera/lab5/users.txt' USING PigStorage('|') AS (userId:int, age:int, gender:chararray, occupation:chararray, zipCode:int);
+flt = FILTER K by occupation =='programmer' AND gender == 'M';
+L = JOIN B by movieId, J by movieId;
+M = JOIN L by userId, flt by userId;
+N = GROUP M all;
+O = FOREACH N GENERATE group, COUNT(M);
+STORE O INTO '7_output';

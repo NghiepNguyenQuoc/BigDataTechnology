@@ -1,0 +1,69 @@
+Configuration config = HBaseConfiguration.create();
+HTable table = new HTable(config, "user");
+
+private static byte[] personal_cf = Bytes.toBytes("personal_details");
+private static byte[] professional_cf = Bytes.toBytes("prof_details");
+
+private static byte[] personal_column = Bytes.toBytes("Name");
+private static byte[] city_column = Bytes.toBytes("City");
+
+
+private static byte[] designation_column = Bytes.toBytes("Designation");
+private static byte[] salary_column = Bytes.toBytes("Salary");
+
+
+Table table = null;
+
+try {
+
+table = connection.getTable(TableName.valueOf("user"));
+
+
+Put put1 = new Put(Bytes.toBytes("1");
+put1.addColumn(personal_cf,personal_column,Bytes.toBytes("John"));
+put1.addColumn(personal_cf,city_column,Bytes.toBytes("Boston"));
+put1.addColumn(professional_cf,designation_column,Bytes.toBytes("Manager"));
+put1.addColumn(professional_cf,salary_column ,Bytes.toBytes("150000"));
+
+Put put2 = new Put(Bytes.toBytes("2");
+put2.addColumn(personal_cf,personal_column,Bytes.toBytes("Mary"));
+put2.addColumn(personal_cf,city_column,Bytes.toBytes("New York"));
+put2.addColumn(professional_cf,designation_column,Bytes.toBytes("Sr. Engineer"));
+put2.addColumn(professional_cf,salary_column ,Bytes.toBytes("130000"));
+
+
+Put put3 = new Put(Bytes.toBytes("3");
+put3.addColumn(personal_cf,personal_column,Bytes.toBytes("Bob"));
+put3.addColumn(personal_cf,city_column,Bytes.toBytes("Fremont"));
+put3.addColumn(professional_cf,designation_column,Bytes.toBytes("Jr. Engineer"));
+put3.addColumn(professional_cf,salary_column ,Bytes.toBytes("90000"));
+
+
+
+
+List<Put> putList = new ArrayList<Put>();
+putList.add(put1);
+putList.add(put2);
+putList.add(put3);
+
+table.put(putList);
+
+System.out.println("Inserted row done");
+} finally {
+connection.close();
+if (table !=null) {
+table.close();
+}
+
+
+--------------------
+
+
+personal_details:Name
+
+personal_details:City
+
+
+prof_details: Designation
+
+prof_details: Salary

@@ -1,0 +1,52 @@
+
+--create table stocks
+create table stocks(id int not null primary key auto_increment, symbol varchar(20), quote_date varchar(20), open_price double, high_price double, low_price double);
+
+--insert data to stocks
+insert into stocks values (1, "AAPL", "2009-01-02",85.88,91.04,85.16), (2, "AAPL", "2008-01-02",199.27,200.26,192.55), (3, "AAPL", "2007-01-03",86.29,86.58,81.9);
+
+
+sqoop import --connect jdbc:mysql://quickstart.cloudera/cs523 --username root --password cloudera --table stocks --columns id,symbol,open_price --target-dir=/user/cloudera/sqoopImportStocksOutput -m 1
+
+
+
+
+--flume configure--
+agent1.sources = source1
+agent1.sinks = sink1a sink1b
+agent1.channels = channel1a channel1b
+
+agent1.sources.source1.channels = channel1a channel1b
+agent1.sinks.sink1a.channel = channel1a
+agent1.sinks.sink1b.channel = channel1b
+
+agent1.sources.source1.type = spooldir
+agent1.sources.source1.spoolDir = /tmp/spooldir
+
+agent1.sinks.sink1a.type = hdfs
+agent1.sinks.sink1a.hdfs.path = /tmp/flume
+agent1.sinks.sink1a.hdfs.filePrefix = events
+agent1.sinks.sink1a.hdfs.fileSuffix = .log
+agent1.sinks.sink1a.hdfs.fileType = DataStream
+
+agent1.sinks.sink1b.type = logger
+
+agent1.channels.channel1a.type = file
+agent1.channels.channel1b.type = memory
+
+--start flume agent
+flume-ng agent --conf-file /home/cloudera/lab7/HoangDuyVu_flume.conf --name agent1 --conf $FLUME_HOME/conf -Dflume.root.logger=INFO,console
+--create table student
+create table student (id int not null primary key auto_increment, name varchar(20), address varchar(20));
+
+
+--insert data to student
+insert into student values (1, "John", "12th Ave, Iowa"), (2, "Mary","Boston"), (3, "Bob", "Des Moines"), (4, "Lina", "San Francisco");
+
+
+--import using sqoop
+sqoop import --connect jdbc:mysql://quickstart.cloudera/cs523 --username root --password cloudera --table student --target-dir=/user/cloudera/sqoopImportOutput -m 1
+
+OR
+sqoop import --connect jdbc:mysql://localhost/cs523 --username root --password cloudera --table student --target-dir=
+/user/cloudera/sqoopImportOutput -m 2

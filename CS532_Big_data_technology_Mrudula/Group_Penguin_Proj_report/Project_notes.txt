@@ -1,0 +1,175 @@
+Kafka <> Spark <> HBase
+
+Spark installation
+http://download.nextag.com/apache/spark/spark-2.3.0/spark-2.3.0-bin-hadoop2.7.tgz
+
+tar -xvzf spark-2.3.0-bin-hadoop2.7.tgz
+mv spark-2.3.0-bin-hadoop2.7 /usr/local/spark
+
+#edit /etc/bashrc allow pyspark run with jupyter
+export PYSPARK_DRIVER_PYTHON=jupyter
+export PYSPARK_DRIVER_PYTHON_OPTS='notebook'
+export PATH="/usr/local/spark/bin:$PATH"
+
+#install Anaconda
+export PATH="/usr/local/anaconda2/bin:$PATH"
+
+
+Kafka installation
+http://mirrors.sorengard.com/apache/kafka/1.0.1/kafka_2.12-1.0.1.tgz
+tar -xvf kafka_2.12-1.0.1.tgz
+
+
+
+edit .bash_profile to add 2 line below
+
+export KAFKA_HOME=<location of kafka>
+export PATH=$PATH:$KAFKA_HOME/bin
+
+#Check zookeeper.properties, reconfigure if need --> --clientPort=2181
+#Check zookeeper.properties, dataDir=/tmp/zookeeper
+#start zookeeper first before start kafka
+./bin/zookeeper-server-start.sh config/zookeeper.properties
+
+#start kafka, check broker.id=0 , port etc...
+./bin/kafka-server-start.sh config/server.properties
+
+#create toptic
+./bin/kafka-topics.sh --zookeeper localhost:2181 --create --topic test --partitions 1 --replication-factor 1
+
+#list topic on kafka
+./bin/kafka-topics.sh --list --zookeeper --localhost:2181
+
+#start consummer from beginning
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test1 --from-beginning
+
+
+#start producer
+./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic datastoretopic < /home/cloudera/h1b_small.csv
+
+
+#start job
+spark2-submit --master local[2] streamtest.py
+
+
+#Hbase
+
+#Create table code scala
+create 'job_info','general','details'
+
+
+#Create table code python
+create 'jobs', 'info'
+
+
+#delete kafka topic
+Stop Kafka server
+Delete the topic directory with rm -rf command
+Connect to Zookeeper instance: zookeeper-shell.sh host:port
+ls /brokers/topics
+Remove the topic folder from ZooKeeper using rmr /brokers/topics/yourtopic
+Restart Kafka server
+Confirm if it was deleted or not by using this command kafka-topics.sh --list --zookeeper host:port
+
+
+#Parse CSV to JSON
+import csv  
+import json  
+  
+# Open the CSV  
+f = open( '/home/cloudera/job_skills.csv', 'rU' )  
+# Change each fieldname to the appropriate field name. I know, so difficult.  
+reader = csv.DictReader( f, fieldnames = ( "Company","Title","Category","Location","Responsibilities","Minimum Qualifications","Preferred Qualifications" ))  
+# Parse the CSV into JSON  
+out = json.dumps( [ row for row in reader ] )  
+print (out)
+print "JSON parsed!"  
+# Save the JSON  
+f = open( '/home/cloudera/job_skills_parsed.json', 'w')  
+f.write(out)  
+print "JSON saved!"  
+
+-----------------------------
+#Kafka producer
+from kafka import KafkaProducer
+from kafka.errors import KafkaError
+import time
+import csv
+import json
+
+# Open the CSV  
+f = open( '/home/cloudera/job_skills.csv', 'rU' )  
+# Change each fieldname to the appropriate field name. I know, so difficult.  
+
+reader = csv.DictReader( f, fieldnames = ( "company","title","category","location","responsibility","minimum","prefer" ))
+
+
+
+#next(reader,None)
+   
+#jupyter notebook --ip=0.0.0.0 --no-browser
+
+# Kafka config
+producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
+topic = "jobs_python"
+# Parse the CSV into JSON  
+#out = json.dumps( [ row for row in reader ] )  
+for row in reader:
+    message = json.dumps(row)
+    producer.send(topic, message)
+    time.sleep(10)
+-------------------------------------------
+
+
+#Hive on Hbase
+create external table job_info_hbase(rowid String,company String,title String,category String,location String,responsibility String,minimum String,prefer String) 
+STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' with serdeproperties("hbase.columns.mapping"=":key,general:company,general:title,general:category,general:location,details:responsibility,details:minimum,details:prefer")
+tblproperties("hbase.table.name"="job_info");
+#Hive on Hbase code python
+
+create external table job_python_hbase(rowid String,company String,title String,category String,location String,responsibility String,minimum String,prefer String) 
+STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' with serdeproperties("hbase.columns.mapping"=":key,info:company,info:title,info:category,info:location,info:responsibility,info:minimum,info:prefer")
+tblproperties("hbase.table.name"="jobs");
+
+create external table job_info_csv(rowid String,company String,title String,category String,location String,responsibility String,minimum String,prefer String) 
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+tblproperties("skip.header.line.count"="1");
+
+#
+load data local inpath '/home/cloudera/job_skills_sorted.csv' overwrite into table job_info_csv;
+
+
+# Data visualization
+
+
+
+plt.plot([1,2,3],[1,4,9])
+plt.xlabel('this is x axis)
+plt.ylabel('this is y axis)
+plt.legend(['data set 1'],['data set 2'])
+# plt.legend() takes a list as an argument
+
+plt.show
+#plt.savefig('image_name')
+
+#using pandas
+import pandas as pd
+
+data ={'year':[2008,2012,2016],
+	'attendees':[112,321,729],
+	'average age': [24,43,32]}
+	df = pd.DataFrame(data)
+	
+#
+spark-submit --master local[2] --conf "spark.dynamicAllocation.enabled=false" --class DataStore  bdtproject_2.10-0.1.jar datastoretopic
+	
+	
+spark2-submit --master local[2] --conf "spark.dynamicAllocation.enabled=false" --class SparkWordCount  bdtproject_2.10-0.1.jar datastoretopic
+
+
+
+Start streaming job
+spark2-submit --master local SparkStreaming.py
+/Git hub
+boldkhuu
+

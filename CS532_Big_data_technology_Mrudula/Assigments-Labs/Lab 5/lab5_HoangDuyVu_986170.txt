@@ -1,0 +1,119 @@
+1 Producing Word Count in Pig 
+
+linesOfText= LOAD '/home/cloudera/test.txt' AS (line:chararray);
+tokenBag = FOREACH linesOfText GENERATE TOKENIZE (line);
+flatBag = FOREACH tokenBag GENERATE flatten($0);
+charGroup = GROUP flatBag by token;
+counts = FOREACH charGroup GENERATE group, COUNT(flatBag);
+STORE counts INTO '1_output';
+
+2 Join in Pig – Top 5 most visited sites 
+
+users= LOAD '/home/cloudera/lab5/user.csv' USING PigStorage(',') AS (name:chararray, age:int);
+flt = FILTER users by (age >=18) and (age <=25);
+pages = LOAD '/home/cloudera/lab5/pages.csv' USING PigStorage(',') AS (user:chararray, url:chararray);
+joined = JOIN flt by name, pages by user;
+urls = GROUP joined by url;
+counts = FOREACH urls GENERATE $0, COUNT($1);
+top5 = LIMIT counts 5;
+STORE top5 INTO '2_output';	
+
+3 How many male lawyers are listed in the users.txt file?
+
+users = LOAD '/home/cloudera/lab5/users.txt' USING PigStorage('|') AS (userId:int, age:int, gender:chararray, occupation:chararray, zipCode:int);
+flt = FILTER users by (gender == 'M') and (occupation == 'lawyer');
+groups = GROUP flt by occupation;
+counts = FOREACH groups GENERATE group, COUNT(flt);
+STORE counts INTO '3_output';
+
+
+4 What is the userId of the oldest male lawyer?
+
+users = LOAD '/home/cloudera/lab5/users.txt' USING PigStorage('|') AS (userId:int, age:int, gender:chararray, occupation:chararray, zipCode:int);
+flt = FILTER users by (gender == 'M') and (occupation == 'lawyer');
+orders = ORDER flt by age desc;
+oldest = LIMIT orders 1;
+result = FOREACH oldest GENERATE userId;
+STORE result INTO '4_output';
+
+5 How many movies are there whose title start with letter “A” or “a”? Show the count of these movies by genre
+
+REGISTER /usr/lib/pig/piggybank.jar;
+A = LOAD '/home/cloudera/lab5/movies.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'YES_MULTILINE', 'UNIX', 'SKIP_INPUT_HEADER') AS (movieId:int, title:chararray, genres:chararray);
+flt = FILTER A BY STARTSWITH(title, 'A') OR STARTSWITH(title, 'a');
+genres = FOREACH flt GENERATE FLATTEN(TOKENIZE(genres,'|')) as genres;
+group_genres = GROUP genres by genres;
+result = FOREACH group_genres GENERATE group, COUNT($1);
+orders = ORDER result by $0;
+STORE orders INTO '5_output';
+
+6 Display a list of top 20 highest rated (rating=5) “Adventure” movies sorted by movieId
+
+REGISTER /usr/lib/pig/piggybank.jar;
+A = LOAD '/home/cloudera/lab5/movies.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'YES_MULTILINE', 'UNIX', 'SKIP_INPUT_HEADER') AS (movieId:int, title:chararray, genres:chararray);
+B = LOAD '/home/cloudera/lab5/rating.txt' AS (userId:int,movieId:int,rating:int,time:chararray);
+C = FOREACH A GENERATE movieId, title, FLATTEN(TOKENIZE(genres,'|')) as genres;
+D = FILTER C by genres == 'Adventure';
+E = FILTER B by rating == 5;
+F = JOIN D by movieId, E by movieId;
+G = FOREACH F GENERATE $0 as movieId, $2 as genres, $5 as rating, $1 as title;
+H = DISTINCT G;
+I = ORDER H by movieId;
+J = LIMIT I 20;
+STORE J INTO '6_output';
+
+
+7 Out of these highest rated top 20 movies found in Q6, how many times male programmers have watched these movies?
+
+REGISTER /usr/lib/pig/piggybank.jar;
+A = LOAD '/home/cloudera/lab5/movies.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'YES_MULTILINE', 'UNIX', 'SKIP_INPUT_HEADER') AS (movieId:int, title:chararray, genres:chararray);
+B = LOAD '/home/cloudera/lab5/rating.txt' AS (userId:int,movieId:int,rating:int,time:chararray);
+C = FOREACH A GENERATE movieId, title, FLATTEN(TOKENIZE(genres,'|')) as genres;
+D = FILTER C by genres == 'Adventure';
+E = FILTER B by rating == 5;
+F = JOIN D by movieId, E by movieId;
+G = FOREACH F GENERATE $0 as movieId, $2 as genres, $5 as rating, $1 as title;
+H = DISTINCT G;
+I = ORDER H by movieId;
+J = LIMIT I 20;
+K = LOAD '/home/cloudera/lab5/users.txt' USING PigStorage('|') AS (userId:int, age:int, gender:chararray, occupation:chararray, zipCode:int);
+flt = FILTER K by occupation =='programmer' AND gender == 'M';
+L = JOIN B by movieId, J by movieId;
+M = JOIN L by userId, flt by userId;
+N = GROUP M all;
+O = FOREACH N GENERATE group, COUNT(M);
+STORE O INTO '7_output';
+
+8 Modify the above pig script so that the output file will now show the header for each tab separated field.
+
+ 
+REGISTER /usr/lib/pig/piggybank.jar;
+A = LOAD '/home/cloudera/lab5/movies.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage(',', 'YES_MULTILINE', 'UNIX', 'SKIP_INPUT_HEADER') AS (movieId:int, title:chararray, genres:chararray);
+B = LOAD '/home/cloudera/lab5/rating.txt' AS (userId:int,movieId:int,rating:int,time:chararray);
+C = FOREACH A GENERATE movieId, title, FLATTEN(TOKENIZE(genres,'|')) as genres;
+D = FILTER C by genres == 'Adventure';
+E = FILTER B by rating == 5;
+F = JOIN D by movieId, E by movieId;
+G = FOREACH F GENERATE $0 as movieId, $2 as genres, $5 as rating, $1 as title;
+H = DISTINCT G;
+I = ORDER H by movieId;
+J = LIMIT I 20;
+STORE J INTO '8_output' USING org.apache.pig.piggybank.storage.CSVExcelStorage('\t', 'NO_MULTILINE', 'UNIX', 'WRITE_OUTPUT_HEADER');
+
+
+
+
+
+----------------------------Reference only --------------
+A= LOAD 'movies.csv' USING PigStorage(',');
+filters = FILTER A BY ($1 matches '(?i)a.*|\\"(?)a.*');
+SPLIT filters INTO good_records IF SIZE(TOTUPLE(*))==3, bad_records OTHERWISE;
+list_good = FOREACH good_records GENERATE $0, $1, COUNT(TOKENIZE($2,'|'));
+list_bad = FOREACH bad_records GENERATE $0, CONCAT($1,',',$2), COUNT(TOKENIZE($3,'|'));
+final= UNION list_good, list_bad;
+toprint = FOREACH final GENERATE $1, $2;
+dump toprint;
+----------------------------Reference only --------------
+
+
+
